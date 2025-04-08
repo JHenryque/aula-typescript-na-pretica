@@ -8,13 +8,41 @@ function addRow(table, student) {
     const age = tr.insertCell();
     age.appendChild(document.createTextNode((new Date().getFullYear() - parseInt(student.birthYear)).toString()));
     const majors = tr.insertCell();
-    majors.appendChild(document.createTextNode(`${student.focusArea}`));
+    if (student.focusArea) {
+        if (typeof student.focusArea === "string") {
+            majors.appendChild(document.createTextNode(student.focusArea));
+        }
+        else {
+            let areas = "";
+            student.focusArea.forEach((area) => {
+                areas += area + ", ";
+            });
+            majors.appendChild(document.createTextNode(areas.slice(0, -2)));
+        }
+    }
+    else {
+        majors.appendChild(document.createTextNode("---"));
+    }
     const status = tr.insertCell();
-    status.appendChild(document.createTextNode(`${student.dateRegistrationSuspended}`));
+    if (student.dateRegistrationSuspended) {
+        status.appendChild(document.createTextNode("Inactive"));
+    }
+    else {
+        status.appendChild(document.createTextNode("Active"));
+    }
 }
 // select HTML table
 function selectTable() {
     return document.querySelector("#students-table");
 }
+function refreshTable(table, student) {
+    table.querySelector("tbody").innerHTML = "";
+    students.forEach((student) => {
+        addRow(table, student);
+    });
+}
 // add a row
-addRow(selectTable(), students[0]);
+//addRow(selectTable(), students[0]);
+window.onload = () => {
+    refreshTable(selectTable(), students);
+};

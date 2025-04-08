@@ -14,7 +14,7 @@ interface Student {
 }
 
 function addRow(table: HTMLTableElement, student: Student) {
-  let tr = table.querySelector("tbody").insertRow();
+  let tr = table.querySelector("tbody")!.insertRow();
 
   const name = tr.insertCell();
   name.appendChild(
@@ -29,12 +29,26 @@ function addRow(table: HTMLTableElement, student: Student) {
   );
 
   const majors = tr.insertCell();
-  majors.appendChild(document.createTextNode(`${student.focusArea}`));
+  if (student.focusArea) {
+    if (typeof student.focusArea === "string") {
+      majors.appendChild(document.createTextNode(student.focusArea));
+    } else {
+      let areas = "";
+      student.focusArea.forEach((area) => {
+        areas += area + ", ";
+      });
+      majors.appendChild(document.createTextNode(areas.slice(0, -2)));
+    }
+  } else {
+    majors.appendChild(document.createTextNode("---"));
+  }
 
   const status = tr.insertCell();
-  status.appendChild(
-    document.createTextNode(`${student.dateRegistrationSuspended}`)
-  );
+  if (student.dateRegistrationSuspended) {
+    status.appendChild(document.createTextNode("Inactive"));
+  } else {
+    status.appendChild(document.createTextNode("Active"));
+  }
 }
 
 // select HTML table
@@ -42,5 +56,16 @@ function selectTable() {
   return <HTMLTableElement>document.querySelector("#students-table");
 }
 
+function refreshTable(table: HTMLTableElement, student: Student[]) {
+  table.querySelector("tbody")!.innerHTML = "";
+  students.forEach((student) => {
+    addRow(table, student);
+  });
+}
+
 // add a row
-addRow(selectTable(), students[0]);
+//addRow(selectTable(), students[0]);
+
+window.onload = () => {
+  refreshTable(selectTable(), students);
+};
